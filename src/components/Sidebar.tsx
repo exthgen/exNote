@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, Trash2 } from "lucide-react";
+import { FileText, Search, Trash2, Edit2 } from "lucide-react";
 
 interface Note {
   id: number;
@@ -18,6 +18,7 @@ interface SidebarProps {
   onNoteSelect: (note: Note) => void;
   onNoteDelete: (note: Note) => void;
   onNewNote: () => void;
+  onNoteTitleChange: (noteId: number, newTitle: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -28,7 +29,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   onNoteSelect,
   onNoteDelete,
   onNewNote,
+  onNoteTitleChange,
 }) => {
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+
+  const startEditing = (noteId: number) => {
+    setEditingNoteId(noteId);
+  };
+
+  const finishEditing = (noteId: number, newTitle: string) => {
+    onNoteTitleChange(noteId, newTitle);
+    setEditingNoteId(null);
+  };
+
   return (
     <div className="w-64 bg-gray-800 p-2 border-r border-gray-700 flex flex-col h-screen">
       <h1 className="text-xl font-bold mb-4 mt-2 px-2 text-white">eXNote</h1>
@@ -45,14 +58,37 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex-grow overflow-y-auto space-y-1 px-2">
         {notes.map((note) => (
           <div key={note.id} className="flex items-center">
+            {editingNoteId === note.id ? (
+              <Input
+                type="text"
+                defaultValue={note.title}
+                onBlur={(e) => finishEditing(note.id, e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    finishEditing(note.id, e.currentTarget.value);
+                  }
+                }}
+                autoFocus
+                className="flex-grow mr-1 h-7 bg-gray-700 border-gray-600 text-xs"
+              />
+            ) : (
+              <Button
+                variant={note.id === currentNote?.id ? "default" : "ghost"}
+                className={`flex-grow justify-start text-left py-1 px-2 text-sm ${
+                  note.id === currentNote?.id ? "bg-gray-700" : ""
+                }`}
+                onClick={() => onNoteSelect(note)}
+              >
+                {note.title}
+              </Button>
+            )}
             <Button
-              variant={note.id === currentNote?.id ? "default" : "ghost"}
-              className={`flex-grow justify-start text-left py-1 px-2 text-sm ${
-                note.id === currentNote?.id ? "bg-gray-700" : ""
-              }`}
-              onClick={() => onNoteSelect(note)}
+              variant="ghost"
+              size="sm"
+              onClick={() => startEditing(note.id)}
+              className="ml-1 text-blue-500 hover:text-blue-400 p-1"
             >
-              {note.title}
+              <Edit2 className="h-3 w-3" />
             </Button>
             <Button
               variant="ghost"

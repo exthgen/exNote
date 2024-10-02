@@ -1,7 +1,6 @@
-import { useToast } from "@/hooks/use-toast";
 import React, { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Save, Copy, Check } from "lucide-react";
 import {
   Select,
@@ -27,7 +26,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
 import { dracula } from "@uiw/codemirror-theme-dracula";
-import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar";  // Make sure to import the Sidebar component
 
 const languageMap = {
   plaintext: [],
@@ -118,10 +117,6 @@ const Notepad: React.FC = () => {
     [updateCurrentNote]
   );
 
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const copyContent = useCallback(() => {
     if (currentNote) {
       navigator.clipboard.writeText(currentNote.content).then(() => {
@@ -157,45 +152,50 @@ const Notepad: React.FC = () => {
     setNoteToDelete(null);
   }, [noteToDelete, notes, currentNote, saveToLocalStorage, toast]);
 
+  const handleNoteTitleChange = useCallback((noteId: number, newTitle: string) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === noteId ? { ...note, title: newTitle } : note
+    );
+    setNotes(updatedNotes);
+    saveToLocalStorage(updatedNotes);
+    if (currentNote && currentNote.id === noteId) {
+      setCurrentNote({ ...currentNote, title: newTitle });
+    }
+  }, [notes, currentNote, saveToLocalStorage]);
+
   return (
     <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
       <Sidebar
-        notes={filteredNotes}
+        notes={notes}
         currentNote={currentNote}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onNoteSelect={setCurrentNote}
         onNoteDelete={deleteNote}
         onNewNote={createNewNote}
+        onNoteTitleChange={handleNoteTitleChange}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {currentNote ? (
           <>
-            <div className="p-4 bg-gray-800">
-              <div className="flex space-x-4 items-center">
-                <Input
-                  value={currentNote.title}
-                  onChange={(e) => updateCurrentNote("title", e.target.value)}
-                  placeholder="Note title"
-                  className="flex-grow bg-gray-700 border-gray-600 h-9 text-base"
-                />
-                <Select
-                  value={currentNote.language}
-                  onValueChange={(value) => updateCurrentNote("language", value)}
-                >
-                  <SelectTrigger className="w-[140px] bg-gray-700 border-gray-600">
-                    <SelectValue placeholder="Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="plaintext">Plain Text</SelectItem>
-                    <SelectItem value="javascript">JavaScript</SelectItem>
-                    <SelectItem value="python">Python</SelectItem>
-                    <SelectItem value="html">HTML</SelectItem>
-                    <SelectItem value="css">CSS</SelectItem>
-                    <SelectItem value="json">JSON</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="p-4 bg-gray-800 flex justify-between items-center">
+              <h2 className="text-xl font-semibold">{currentNote.title}</h2>
+              <Select
+                value={currentNote.language}
+                onValueChange={(value) => updateCurrentNote("language", value)}
+              >
+                <SelectTrigger className="w-[140px] bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="plaintext">Plain Text</SelectItem>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  <SelectItem value="python">Python</SelectItem>
+                  <SelectItem value="html">HTML</SelectItem>
+                  <SelectItem value="css">CSS</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex-1 overflow-hidden relative">
               <CodeMirror
