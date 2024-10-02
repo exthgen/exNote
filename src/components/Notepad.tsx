@@ -158,7 +158,7 @@ const Notepad: React.FC = () => {
   }, [noteToDelete, notes, currentNote, saveToLocalStorage, toast]);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
       <Sidebar
         notes={filteredNotes}
         currentNote={currentNote}
@@ -168,34 +168,36 @@ const Notepad: React.FC = () => {
         onNoteDelete={deleteNote}
         onNewNote={createNewNote}
       />
-      <div className="flex-1 p-4 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {currentNote ? (
           <>
-            <div className="flex space-x-4 mb-4 items-center">
-              <Input
-                value={currentNote.title}
-                onChange={(e) => updateCurrentNote("title", e.target.value)}
-                placeholder="Note title"
-                className="flex-grow bg-gray-700 border-gray-600 h-9 text-base"
-              />
-              <Select
-                value={currentNote.language}
-                onValueChange={(value) => updateCurrentNote("language", value)}
-              >
-                <SelectTrigger className="w-[140px] bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="plaintext">Plain Text</SelectItem>
-                  <SelectItem value="javascript">JavaScript</SelectItem>
-                  <SelectItem value="python">Python</SelectItem>
-                  <SelectItem value="html">HTML</SelectItem>
-                  <SelectItem value="css">CSS</SelectItem>
-                  <SelectItem value="json">JSON</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="p-4 bg-gray-800">
+              <div className="flex space-x-4 items-center">
+                <Input
+                  value={currentNote.title}
+                  onChange={(e) => updateCurrentNote("title", e.target.value)}
+                  placeholder="Note title"
+                  className="flex-grow bg-gray-700 border-gray-600 h-9 text-base"
+                />
+                <Select
+                  value={currentNote.language}
+                  onValueChange={(value) => updateCurrentNote("language", value)}
+                >
+                  <SelectTrigger className="w-[140px] bg-gray-700 border-gray-600">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="plaintext">Plain Text</SelectItem>
+                    <SelectItem value="javascript">JavaScript</SelectItem>
+                    <SelectItem value="python">Python</SelectItem>
+                    <SelectItem value="html">HTML</SelectItem>
+                    <SelectItem value="css">CSS</SelectItem>
+                    <SelectItem value="json">JSON</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex-grow relative">
+            <div className="flex-1 overflow-hidden relative">
               <CodeMirror
                 value={currentNote.content}
                 height="100%"
@@ -204,6 +206,7 @@ const Notepad: React.FC = () => {
                   languageMap[currentNote.language as keyof typeof languageMap]
                 }
                 onChange={handleEditorChange}
+                className="h-full overflow-auto"
               />
               <div className="absolute bottom-4 right-4 flex space-x-2">
                 <Button
