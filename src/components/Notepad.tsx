@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Save, Copy, Check } from "lucide-react";
+import { Save, Copy, Check, File } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
 import { dracula } from "@uiw/codemirror-theme-dracula";
-import Sidebar from "./Sidebar";  // Make sure to import the Sidebar component
+import Sidebar from "./Sidebar"; // Make sure to import the Sidebar component
 
 const languageMap = {
   plaintext: [],
@@ -152,16 +152,19 @@ const Notepad: React.FC = () => {
     setNoteToDelete(null);
   }, [noteToDelete, notes, currentNote, saveToLocalStorage, toast]);
 
-  const handleNoteTitleChange = useCallback((noteId: number, newTitle: string) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === noteId ? { ...note, title: newTitle } : note
-    );
-    setNotes(updatedNotes);
-    saveToLocalStorage(updatedNotes);
-    if (currentNote && currentNote.id === noteId) {
-      setCurrentNote({ ...currentNote, title: newTitle });
-    }
-  }, [notes, currentNote, saveToLocalStorage]);
+  const handleNoteTitleChange = useCallback(
+    (noteId: number, newTitle: string) => {
+      const updatedNotes = notes.map((note) =>
+        note.id === noteId ? { ...note, title: newTitle } : note
+      );
+      setNotes(updatedNotes);
+      saveToLocalStorage(updatedNotes);
+      if (currentNote && currentNote.id === noteId) {
+        setCurrentNote({ ...currentNote, title: newTitle });
+      }
+    },
+    [notes, currentNote, saveToLocalStorage]
+  );
 
   return (
     <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
@@ -178,8 +181,11 @@ const Notepad: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {currentNote ? (
           <>
-            <div className="p-4 bg-gray-800 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">{currentNote.title}</h2>
+            <div className="p-2 bg-gray-800 flex justify-between items-center">
+              <h2 className="flex items-center gap-2 text-lg font-semibold">
+                <File className="h-5 w-5 flex-shrink-0" />
+                {currentNote.title}
+              </h2>
               <Select
                 value={currentNote.language}
                 onValueChange={(value) => updateCurrentNote("language", value)}
