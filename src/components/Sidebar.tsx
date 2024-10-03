@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, Trash2, Edit2 } from "lucide-react";
+import { FileText, Search, Trash2, Edit2, File } from "lucide-react";
 
 interface Note {
   id: number;
@@ -33,82 +33,91 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
-  const startEditing = (noteId: number) => {
+  const startEditing = (noteId: number): void => {
     setEditingNoteId(noteId);
   };
 
-  const finishEditing = (noteId: number, newTitle: string) => {
+  const finishEditing = (noteId: number, newTitle: string): void => {
     onNoteTitleChange(noteId, newTitle);
     setEditingNoteId(null);
   };
 
+  const filteredNotes = notes.filter((note) =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="w-64 bg-gray-800 p-2 border-r border-gray-700 flex flex-col h-screen">
-      <h1 className="text-xl font-bold mb-4 mt-2 px-2 text-white">eXNote</h1>
-      <div className="mb-3 relative px-2">
+    <div className="w-64 bg-gray-900 p-4 border-r border-gray-800 flex flex-col h-screen">
+      <h1 className="text-2xl font-bold mb-6 text-white">eXNote</h1>
+      <div className="mb-4 relative">
         <Input
           type="text"
           placeholder="Search notes..."
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-7 py-1 h-7 bg-gray-700 border-gray-600 text-xs"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+          className="pl-8 py-2 bg-gray-800 border-gray-700 text-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
       </div>
-      <div className="flex-grow overflow-y-auto space-y-1 px-2">
-        {notes.map((note) => (
-          <div key={note.id} className="flex items-center">
+      <div className="flex-grow overflow-y-auto space-y-2">
+        {filteredNotes.map((note) => (
+          <div
+            key={note.id}
+            className={`group relative rounded-md transition-all duration-200 ${
+              note.id === currentNote?.id
+                ? "bg-blue-600 text-white"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            }`}
+          >
             {editingNoteId === note.id ? (
               <Input
                 type="text"
                 defaultValue={note.title}
-                onBlur={(e) => finishEditing(note.id, e.target.value)}
-                onKeyPress={(e) => {
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => finishEditing(note.id, e.target.value)}
+                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === 'Enter') {
                     finishEditing(note.id, e.currentTarget.value);
                   }
                 }}
                 autoFocus
-                className="flex-grow mr-1 h-7 bg-gray-700 border-gray-600 text-xs"
+                className="w-full py-2 px-3 bg-gray-700 border-gray-600 text-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             ) : (
-              <Button
-                variant={note.id === currentNote?.id ? "default" : "ghost"}
-                className={`flex-grow justify-start text-left py-1 px-2 text-sm ${
-                  note.id === currentNote?.id ? "bg-gray-700" : ""
-                }`}
+              <button
+                className="w-full text-left py-2 px-3 flex items-center space-x-2"
                 onClick={() => onNoteSelect(note)}
               >
-                {note.title}
-              </Button>
+                <File className="h-4 w-4 flex-shrink-0" />
+                <span className="flex-grow truncate">{note.title}</span>
+              </button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => startEditing(note.id)}
-              className="ml-1 text-blue-500 hover:text-blue-400 p-1"
-            >
-              <Edit2 className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onNoteDelete(note)}
-              className="ml-1 text-red-500 hover:text-red-400 p-1"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => startEditing(note.id)}
+                className="text-gray-400 hover:text-blue-400 p-1"
+              >
+                <Edit2 className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNoteDelete(note)}
+                className="text-gray-400 hover:text-red-400 p-1"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>
-      <div className="px-2">
-        <Button
-          onClick={onNewNote}
-          className="w-full mt-2 bg-blue-600 hover:bg-blue-700 py-1 text-sm"
-        >
-          <FileText className="mr-1 h-3 w-3" /> New Note
-        </Button>
-      </div>
+      <Button
+        onClick={onNewNote}
+        className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors duration-200"
+      >
+        <FileText className="mr-2 h-4 w-4" /> New Note
+      </Button>
     </div>
   );
 };
