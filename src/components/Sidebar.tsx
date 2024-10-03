@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileText, Search, Trash2, Edit2, File } from "lucide-react";
+import logo from "../assets/apple-touch-icon.png";
 
 interface Note {
   id: number;
@@ -48,13 +49,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div className="w-64 bg-gray-900 p-4 border-r border-gray-800 flex flex-col h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-white">eXNote</h1>
+      <h1 className="flex gap-2 text-2xl font-bold mb-6 text-white">
+        <img className="w-10 rounded-sm" src={logo} />
+        eXNote
+      </h1>
       <div className="mb-4 relative">
         <Input
           type="text"
           placeholder="Search notes..."
           value={searchTerm}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onSearchChange(e.target.value)
+          }
           className="pl-8 py-2 bg-gray-800 border-gray-700 text-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -73,9 +79,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               <Input
                 type="text"
                 defaultValue={note.title}
-                onBlur={(e: React.FocusEvent<HTMLInputElement>) => finishEditing(note.id, e.target.value)}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                  finishEditing(note.id, e.target.value)
+                }
                 onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     finishEditing(note.id, e.currentTarget.value);
                   }
                 }}
